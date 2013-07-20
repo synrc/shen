@@ -21,20 +21,19 @@ fac.erl:
 fac.js:
 
     var pattern = require("matches").pattern;
+    var start = pattern({
+        '': function() {
+            j = 5;
+            n = fac(j);
+            return console.log('factorial ~p',[j,[n,[]]]);
+    }});
     var fac = pattern({
-        '0' : function (x) { 
+        '0': function(x1) {
             return 1;
         },
-        'n' : function (N) {
-            return N * fac(N-1);
-        }
-    });
-    var start = pattern({
-        ' ' : function() {
-            N = fac(5);
-            console.log("Fac ~p ~p", 5, fac (5) );
-        }
-    });
+        'n': function(n) {
+            return n * fac(n - 1);
+    }});
     start();
 
 Credits
