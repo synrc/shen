@@ -1,6 +1,5 @@
-
-Erlang Shen: Erlang JavaScript Transformation
-=============================================
+Erlang JavaScript Transformation
+================================
 
 Till now all existed attempts to bring Erlang to the browser is nothing than playing with mind.
 No emulation of terrible Erlang bytecode is needed. In fact Erlang bytecode is relict
