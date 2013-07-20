@@ -34,7 +34,8 @@ clause(Argc,{clause,X,Argv,Guard,Expressions}) ->
     Match = string:join([ exp(Arg) || Arg <- Argv ],","),
     Args = string:join([ arg(Arg,N) || {Arg,N} <- lists:zip(Argv,lists:seq(1,Argc))],","),
   [ io_lib:format("\t'~s': function(~s) {~n", [Match,Args]),
-    ["\t\t"++case N == length(Expressions) of true -> "return "; _ -> "" end ++ exp(E)++";\n" || {E,N} <- lists:zip(Expressions,lists:seq(1,length(Expressions)))],
+    ["\t\t"++case N == length(Expressions) of true -> "return "; _ -> "" end ++ exp(E)++";\n" 
+      || {E,N} <- lists:zip(Expressions,lists:seq(1,length(Expressions)))],
     io_lib:format("~s",["\t}"]) ].
 
 arg({integer,X,Value},N) -> io_lib:format("x~s",[integer_to_list(N)]);
@@ -48,7 +49,8 @@ exp({var,X,Value}) -> io_lib:format("~s",[string:to_lower(atom_to_list(Value))])
 exp({op,X,'-',Left,Right}) -> io_lib:format("~s - ~s",[exp(Left),exp(Right)]);
 exp({op,X,'*',Left,Right}) -> io_lib:format("~s * ~s",[exp(Left),exp(Right)]);
 exp({call,X,{atom,Y,Name},Params}) -> io_lib:format("~s(~s)",[Name,par(Params)]);
-exp({call,X,{remote,XX,{atom,Y,Module},{atom,Z,Name}},Params}) -> io_lib:format("~s.~s(~s)",[Module,Name,par(Params)]);
+exp({call,X,{remote,XX,{atom,Y,Module},{atom,Z,Name}},Params}) -> 
+    io_lib:format("~s.~s(~s)",[Module,Name,par(Params)]);
 exp({match,X,Left,Right}) -> io_lib:format("~s = ~s",[exp(Left),exp(Right)]);
 exp(X) -> X.
 
