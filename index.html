@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="Shen : Erlang JavaScript Parse Transform" />
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Shen</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/5HT/shen">View on GitHub</a>
+
+          <h1 id="project_title">Shen</h1>
+          <h2 id="project_tagline">Erlang JavaScript Parse Transform</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/5HT/shen/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/5HT/shen/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h1>
+<a name="erlang-javascript-parse-transform" class="anchor" href="#erlang-javascript-parse-transform"><span class="octicon octicon-link"></span></a>Erlang JavaScript Parse Transform</h1>
+
+<p>Till now all existed attempts to bring Erlang to the browser is nothing than playing with mind.
+No emulation of terrible Erlang bytecode is needed. In fact Erlang bytecode is relict
+that is even translated by BEAM into more modern internal bytecode. So every project
+that attempt to translate on BEAM byte-code level not only slow but in fact is a useless.</p>
+
+<h2>
+<a name="libraries" class="anchor" href="#libraries"><span class="octicon octicon-link"></span></a>Libraries</h2>
+
+<p>We support following stack by Erlang JavaScript compiler:</p>
+
+<ul>
+<li>matches.js -- Erlang-like matching syntax</li>
+<li>tailrec.js -- optimize tail calls</li>
+<li>beacon.js -- FRP event streaming</li>
+</ul><p>The only real pratical fast solution is to translate Erlang AST into JavaScript
+using JavaScript helpers like matches.js and tailrec.js.</p>
+
+<h2>
+<a name="usage" class="anchor" href="#usage"><span class="octicon octicon-link"></span></a>Usage</h2>
+
+<ul>
+<li>Compilation to JavaScript, node.js, Browser, Client-Side FRP</li>
+<li>Macros, String Templates, Embedding Mode, Server-Side, N2O</li>
+</ul><h2>
+<a name="compilation-to-pure-javascript" class="anchor" href="#compilation-to-pure-javascript"><span class="octicon octicon-link"></span></a>Compilation to Pure JavaScript</h2>
+
+<p>In case of Client-Logic, Off-line clients, Client-side FRP Event System
+use can export you functions in module with -js attribute.
+All function will be stored to the same filename with js extension.</p>
+
+<p>fac.erl:</p>
+
+<pre><code>-module(fac).
+-compile({parse_transform, shen}).
+-compile(export_all).
+
+-js([start/0,fac/1]).
+
+start() -&gt;
+    N = fac(5),
+    console:log("factorial ~p", [J, N]).
+
+fac(0) -&gt; 1;
+fac(N) -&gt; N * fac(N-1).
+</code></pre>
+
+<p>Compile with Erlang:</p>
+
+<pre><code>$ erlc shen.erl
+$ erlc -pa . fac.erl
+</code></pre>
+
+<p>And you will get fac.js:</p>
+
+<pre><code>var pattern = require("matches").pattern;
+var start = pattern({
+    '': function() {
+        j = 5;
+        n = fac(j);
+        return console.log('factorial ~p',[j,[n,[]]]);
+}});
+var fac = pattern({
+    '0': function(x1) {
+        return 1;
+    },
+    'n': function(n) {
+        return n * fac(n - 1);
+}});
+start();
+</code></pre>
+
+<p>Now you can check:</p>
+
+<pre><code>$ node fac.js
+factorial ~p [ 5, [ 120, [] ] ]
+</code></pre>
+
+<h2>
+<a name="javascript-macros" class="anchor" href="#javascript-macros"><span class="octicon octicon-link"></span></a>JavaScript Macros</h2>
+
+<p>Let say we want to generate JavaScript in our Erlang code which is very useful
+for Server-Logic Event System, so you can write programs in Erlang and expand
+them into JavaScript using -jsmacro attribute. Specified functions will be
+expanded to JavaScript during compilation.</p>
+
+<pre><code>-module(fac).
+-compile({parse_transform, shen}).
+-compile(export_all).
+
+-jsmacro([macro/3]).
+
+macro(A,B,C) -&gt;
+    ws:send('Bert':encodebuf(
+        [{source,'Bert':binary(A)},
+         {x,C},
+         {pickle,'Bert':binary(B)},
+         {linked,C}])).
+
+main() -&gt;
+    A = "1",
+    B = "2",
+    Script = macro(A,B,"3"),
+    io:format("JS Macro: ~s",[Script]).
+</code></pre>
+
+<p>Lets try it:</p>
+
+<pre><code>7&gt; fac:main().
+JS Macro: ws.send(Bert.encodebuf({source:Bert.binary(1),x:3,pickle:Bert.binary(2),linked:3}));
+ok
+</code></pre>
+
+<h2>
+<a name="credits" class="anchor" href="#credits"><span class="octicon octicon-link"></span></a>Credits</h2>
+
+<pre><code>* Maxim Sokhatsky
+* Andrew Zadorozhny
+</code></pre>
+
+<p>OM A HUM</p>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Shen maintained by <a href="https://github.com/5HT">5HT</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
