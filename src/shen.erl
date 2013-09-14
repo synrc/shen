@@ -8,7 +8,7 @@ parse_transform(Forms, _Options) ->
     Directives = directives(Forms),
     File = proplists:get_value(file,Directives),
     Macros = proplists:get_value(jsmacro,Directives),
-    Exp = proplists:get_value(js,Directives),
+    Exp = proplists:get_value(js,Directives,[]),
     Inlines = intermezzo(Forms,Macros,inline),
     io:format("Macros ~p~nExp: ~p~n", [Macros, Exp]),
     [ io:format("Stack ~p: ~p~n",[Name,get({macro,Name})]) || {Name,_} <- Macros],
