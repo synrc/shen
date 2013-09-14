@@ -18,8 +18,18 @@ We support following stack by Erlang JavaScript compiler:
 The only real pratical fast solution is to translate Erlang AST into JavaScript
 using JavaScript helpers like matches.js and tailrec.js.
 
-Compilation to JavaScript
--------------------------
+Usage
+-----
+
+* Compilation to JavaScript, node.js, Browser, Client-Side FRP
+* Macros, String Templates, Embedding Mode, Server-Side, N2O
+
+Compilation to Pure JavaScript
+------------------------------
+
+In case of Client-Logic, Off-line clients, Client-side FRP Event System
+use can export you functions in module with -js attribute.
+All function will be stored to the same filename with js extension.
 
 fac.erl:
 
@@ -59,7 +69,7 @@ And you will get fac.js:
     }});
     start();
 
-You can try this:
+Now you can check:
 
     $ node fac.js
     factorial ~p [ 5, [ 120, [] ] ]
@@ -67,8 +77,10 @@ You can try this:
 JavaScript Macros
 -----------------
 
-Let say we want to generate JavaScript in our code, so you can write
-programs in Erlang and expand them into JavaScript.
+Let say we want to generate JavaScript in our Erlang code which is very useful
+for Server-Logic Event System, so you can write programs in Erlang and expand
+them into JavaScript using -jsmacro attribute. Specified functions will be
+expanded to JavaScript during compilation.
 
     -module(fac).
     -compile({parse_transform, shen}).
