@@ -61,24 +61,24 @@ JavaScript Macros
 Let say we want to generate JavaScript in our code, so you can write
 programs in Erlang and expand them into JavaScript.
 
--module(fac).
--compile({parse_transform, shen}).
--compile(export_all).
+    -module(fac).
+    -compile({parse_transform, shen}).
+    -compile(export_all).
 
--jsmacro([macro/3]).
+    -jsmacro([macro/3]).
 
-macro(A,B,C) ->
-    ws:send('Bert':encodebuf(
-        [{source,'Bert':binary(A)},
-         {x,C},
-         {pickle,'Bert':binary(B)},
-         {linked,C}])).
+    macro(A,B,C) ->
+        ws:send('Bert':encodebuf(
+            [{source,'Bert':binary(A)},
+             {x,C},
+             {pickle,'Bert':binary(B)},
+             {linked,C}])).
 
-main() ->
-    A = "1",
-    B = "2",
-    Script = macro(A,B,"3"),
-    io:format("JS Macro: ~s",[Script]).
+    main() ->
+        A = "1",
+        B = "2",
+        Script = macro(A,B,"3"),
+        io:format("JS Macro: ~s",[Script]).
 
 Lets try it:
 
