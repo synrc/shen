@@ -6,6 +6,15 @@ No emulation of terrible Erlang bytecode is needed. In fact Erlang bytecode is r
 that is even translated by BEAM into more modern internal bytecode. So every project
 that attempt to translate on BEAM byte-code level not only slow but in fact is a useless.
 
+Libraries
+---------
+
+We support following stack by Erlang JavaScript compiler:
+
+* matches.js -- Erlang-like matching syntax
+* tailrec.js -- optimize tail calls
+* beacon.js -- FRP event streaming
+
 The only real pratical fast solution is to translate Erlang AST into JavaScript
 using JavaScript helpers like matches.js and tailrec.js.
 
