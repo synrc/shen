@@ -1,4 +1,4 @@
--module(fac).
+-module(sample).
 -compile({parse_transform, shen}).
 -compile(export_all).
 

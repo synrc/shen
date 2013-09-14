@@ -1,0 +1,9 @@
+{application, shen,
+ [
+  {description, "SHEN JavaScript Compiler"},
+  {vsn, "1"},
+  {registered, []},
+  {applications, [kernel, stdlib]},
+  {mod, { shen_app, []}},
+  {env, []}
+ ]}.
