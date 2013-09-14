@@ -9,12 +9,14 @@ parse_transform(Forms, _Options) ->
     File = proplists:get_value(file,Directives),
     Macros = proplists:get_value(jsmacro,Directives),
     Exp = proplists:get_value(js,Directives,[]),
+    collect_vars(Forms,Macros),
     Inlines = intermezzo(Forms,Macros,inline),
-    io:format("Macros ~p~nExp: ~p~n", [Macros, Exp]),
-    [ io:format("Stack ~p: ~p~n",[Name,get({macro,Name})]) || {Name,_} <- Macros],
-    [ io:format("Inline ~p: ~s", [Name,get({inline,Name})]) || {Name,_} <- Macros],
     F = compile_macros(Forms,Macros),
-    io:format("Forms ~p~n", [F]),
+    io:format("Forms ~p", [F]),
+    io:format("Macros ~p~nExp: ~p~n", [Macros, Exp]),
+    [ io:format("Signatures ~p: ~p~n",[Name,get({macroargs,Name})]) || {Name,_} <- Macros],
+    [ io:format("Stack ~p: ~p~n",[Name,get({macro,Name})]) || {Name,_} <- Macros],
+    [ io:format("Inline ~p: ~s~n", [Name,get({inline,Name})]) || {Name,_} <- Macros],
     Result = lists:flatten([prelude(),intermezzo(Forms,Exp,compile),coda()]),
     file:write_file(File,list_to_binary(Result)),
     F.
@@ -24,18 +26,19 @@ forms(File) -> {ok,Forms} = epp:parse_file(File,[],[]), Forms.
 prelude() -> io_lib:format("~n~s~n",["var pattern = require(\"matches\").pattern;"]).
 coda() -> io_lib:format("~s~n",["start();"]).
 intermezzo(Forms,Exp,Type) -> [ compile(F,Type) || F={function,_,Name,Args,_} <- Forms, lists:member({Name,Args},Exp) ].
-compile_macros(Forms,Exp) -> [ xform(F,Exp) || F <- Forms ].
+compile_macros(Forms,Exp) -> [ xform(F,Exp,expand) || F <- Forms ].
+collect_vars(Forms,Exp) -> [ xform(F,Exp,vars) || F <- Forms ].
 
 directive({attribute,_X,module,Name}) -> {file,atom_to_list(Name)++".js"};
 directive({attribute,_X,js,List}) -> {js,List};
 directive({attribute,_X,jsmacro,List}) -> {jsmacro,List};
 directive(_Form) -> [].
 
-xform({function,X,Name,Args,Clauses},Exp) ->
+xform({function,X,Name,Args,Clauses},Exp,Method) ->
     case lists:member({Name,Args},Exp) of
-        true ->  function(Name,X,Args,Clauses,expand);
+        true ->  function(Name,X,Args,Clauses,Method);
         false -> {function,X,Name,Args,Clauses} end;
-xform(X,_Exp) -> X.
+xform(X,_Exp,_) -> X.
 
 compile({attribute,_X,_Word,_Name},_) -> "";
 compile({function,X,Name,Args,Clauses},Type) -> function(Name,X,Args,Clauses,Type);
@@ -48,6 +51,7 @@ function(Name,X,Args,Clauses,Type) ->
                      string:join([ clause(Args,C,Type) || C <- Clauses ],",\n"),
                      io_lib:format("~s~n",["});"]) ];
         inline -> {macro,Name,string:join([ clause(Args,C,{inline,Name}) || C <- Clauses ],",\n")};
+        vars -> [ clause(Args,C,{collectvars,Name}) || C <- Clauses];
         expand -> io:format("M: ~p~n",[Name]),
                {function,X,Name,Args,[ clause(Args,C,{macroexpand,Name}) || C <- Clauses]}
     end.
@@ -55,6 +59,8 @@ function(Name,X,Args,Clauses,Type) ->
 cons(X,[]) -> {nil,X};
 cons(X,[H|T]) -> {cons,X,{var,X,H},cons(X,T)}.
 
+clause(_Argc,C={clause,X,Argv,Guard,_Expressions},{collectvars,Name}) ->
+    put({macroargs,Name},[ Name || {var,_,Name} <- Argv]), C;
 clause(_Argc,{clause,X,Argv,Guard,_Expressions},{macroexpand,Name}) ->
     {clause,X,
         Argv,
@@ -96,9 +102,13 @@ exp(Cons={cons,_X,Left,Right},Mode) ->
         false -> io_lib:format("[~s,~s]",[exp(Left,Mode),exp(Right,Mode)]) end;
 exp({nil,_X},_) -> "[]";
 exp({var,_X,Value},compile) -> io_lib:format("~s",[string:to_lower(atom_to_list(Value))]);
-exp({var,_X,Value},{inline,Name}) -> put({macro,Name},[Value|get({macro,Name})]), "~s";
+exp(V={var,_X,Value},{inline,Name}) ->
+    case lists:member(Value,get({macroargs,Name})) of
+         true -> put({macro,Name},[Value|get({macro,Name})]), "~s";
+         false -> exp(V,compile) end;
 exp({op,_X,'-',Left,Right},Type) -> io_lib:format("~s - ~s",[exp(Left,Type),exp(Right,Type)]);
 exp({op,_X,'*',Left,Right},Type) -> io_lib:format("~s * ~s",[exp(Left,Type),exp(Right,Type)]);
+exp({call,_X,{atom,_Y,jq},Params},Mode) -> io_lib:format("~s(~s)",["$",par(Params,Mode)]);
 exp({call,_X,{atom,_Y,Name},Params},Mode) -> io_lib:format("~s(~s)",[Name,par(Params,Mode)]);
 exp({call,_X,{remote,_XX,{atom,_Y,Module},{atom,_Z,Name}},Params},Mode) -> 
     io_lib:format("~s.~s(~s)",[Module,Name,par(Params,Mode)]);

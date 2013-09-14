@@ -6,6 +6,9 @@
 -jsmacro([macro/3]).
 
 macro(A,B,C) ->
+    X = document,
+    jq(X),
+    jq("document"),
     ws:send('Bert':encodebuf(
         [{source,'Bert':binary(A)},
          {x,C},
