@@ -16,7 +16,7 @@ parse_transform(Forms, _Options) ->
     [ io:format("Stack ~p: ~p~n",[Name,get({stack,Name})])          || {Name,_} <- Macros],
     [ io:format("Inline ~p: ~s~n", [Name,get({inline,Name})])       || {Name,_} <- Macros],
     F = compile_macros(Forms,Macros),
-    error_logger:info_msg("Forms ~p", [Forms]),
+%    error_logger:info_msg("Forms ~p", [Forms]),
     Result = lists:flatten([prelude(),intermezzo(Forms,Exp,compile),coda()]),
     file:write_file(File,list_to_binary(Result)),
     F.
@@ -108,7 +108,6 @@ exp(Cons={cons,_X,Left,Right},Mode) ->
         false -> io_lib:format("[~s,~s]",[exp(Left,Mode),exp(Right,Mode)]) end;
 exp({nil,_X},_) -> "[]";
 exp(V={var,_X,Value},{inline,Name}) ->
-    io:format("Name: ~p Var ~p ~n",[Name,Value]),
     case lists:member(Value,get({macroargs,Name})) of
          true -> put({stack,Name},[Value|get({stack,Name})]), "~s";
          false -> exp(V,compile) end;
