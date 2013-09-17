@@ -5,7 +5,8 @@
 
 tabshow() ->
     X = jq("a[data-toggle=tab]"),
-    lists:map(fun(X) -> X*X end,[1,2,3,4]),
+    S = lists:map(fun(X) -> X*X end,[1,2,3,4]),
+    S - lists:mapfoldl().
     X:on("show", fun(E) -> T = jq(E:at("target")), tabshow(T:attr("href")) end).
 
 doc_ready(E) ->
