@@ -94,6 +94,9 @@ check_proplist({cons,_X,Left,Right},L,Mode) ->
          {tuple,_X,[Key,Val]} -> check_proplist(Right,L++[{exp(Key,Mode),exp(Val,Mode)}],Mode);
          _ -> false end.
 
+normalize_list({nil,_X},L,_Mode) -> [];
+normalize_list({cons,_X,Left,Right},L,Mode) -> [{exp(Left,Mode)},normalize_list(Right,L,Mode)].
+
 arg({integer,_X,_Value},N) -> io_lib:format("x~s",[integer_to_list(N)]);
 arg({var,_X,Value},_N) -> io_lib:format("~s",[string:to_lower(atom_to_list(Value))]).
 par(List,Mode) -> io_lib:format("~s",[lists:flatten(string:join([exp(V,Mode)||V<-List],","))]).
@@ -105,7 +108,8 @@ exp({tuple,_X,List},Mode) -> io_lib:format("{~s}",[lists:flatten(string:join([ex
 exp(Cons={cons,_X,Left,Right},Mode) -> 
     case check_proplist(Cons,[],Mode) of
         {true,L} -> io_lib:format("{~s}",[string:join([[K,":",V]||{K,V}<-L],",")]);
-        false -> io_lib:format("[~s,~s]",[exp(Left,Mode),exp(Right,Mode)]) end;
+           false -> io_lib:format("[~s]",[string:join(
+                        lists:map(fun({[X]})->X end,lists:flatten(normalize_list(Cons,[],Mode))),",")]) end;
 exp({nil,_X},_) -> "[]";
 exp(V={var,_X,Value},{inline,Name}) ->
     case lists:member(Value,get({macroargs,Name})) of
@@ -117,9 +121,11 @@ exp({op,_X,'++',Left,Right},Type) -> io_lib:format("~s + ~s",[exp(Left,Type),exp
 exp({op,_X,'*',Left,Right},Type) -> io_lib:format("~s * ~s",[exp(Left,Type),exp(Right,Type)]);
 exp({call,_X,{atom,_Y,jq},Params},Mode) -> io_lib:format("~s(~s)",["$",par(Params,Mode)]);
 exp({call,_X,{atom,_Y,Name},Params},Mode) -> io_lib:format("~s(~s)",[Name,par(Params,Mode)]);
+exp({call,_,{remote,_,VarAtom={atom,_,lists},{atom,_,map}},[Fun,List]},Mode) -> shen_lists:map(Fun,List,Mode);
 exp({call,_X,{remote,_XX,VarAtom={Tag,_Y,Module},{atom,_Z,at}},Params},Mode) -> 
     io_lib:format("~s[~s]",[exp(VarAtom,compile),par(Params,Mode)]);
 exp({call,_X,{remote,_XX,VarAtom={Tag,_Y,Module},{atom,_Z,Name}},Params},Mode) -> 
     io_lib:format("~s.~s(~s)",[exp(VarAtom,compile),Name,par(Params,Mode)]);
 exp({match,_X,Left,Right},Type) -> io_lib:format("~s = ~s",[exp(Left,Type),exp(Right,Type)]);
 exp(X,_) -> X.
+
