@@ -122,6 +122,8 @@ exp({op,_X,'*',Left,Right},Type) -> io_lib:format("~s * ~s",[exp(Left,Type),exp(
 exp({call,_X,{atom,_Y,jq},Params},Mode) -> io_lib:format("~s(~s)",["$",par(Params,Mode)]);
 exp({call,_X,{atom,_Y,Name},Params},Mode) -> io_lib:format("~s(~s)",[Name,par(Params,Mode)]);
 exp({call,_,{remote,_,VarAtom={atom,_,lists},{atom,_,map}},[Fun,List]},Mode) -> shen_lists:map(Fun,List,Mode);
+exp({call,_,{remote,_,VarAtom={atom,_,lists},{atom,_,foldl}},[Fun,Acc,List]},Mode) -> shen_lists:foldl(Fun,Acc,List,Mode);
+exp({call,_,{remote,_,VarAtom={atom,_,lists},{atom,_,foldr}},[Fun,Acc,List]},Mode) -> shen_lists:foldr(Fun,Acc,List,Mode);
 exp({call,_X,{remote,_XX,VarAtom={Tag,_Y,Module},{atom,_Z,at}},Params},Mode) -> 
     io_lib:format("~s[~s]",[exp(VarAtom,compile),par(Params,Mode)]);
 exp({call,_X,{remote,_XX,VarAtom={Tag,_Y,Module},{atom,_Z,Name}},Params},Mode) -> 
