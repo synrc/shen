@@ -107,6 +107,16 @@ Lets try it:
     JS Macro: ws.send(Bert.encodebuf({source:Bert.binary(1),x:3,pickle:Bert.binary(2),linked:3}));
     ok
 
+Roadmap
+-------
+
+1. if/case matches
+2. booleans
+3. multiple clauses
+4. list comprehensions
+5. nested macros
+6. more JavaScript/OTP mappings
+
 Credits
 -------
 
