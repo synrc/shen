@@ -114,7 +114,6 @@ Roadmap
 2. booleans
 3. multiple clauses
 4. list comprehensions
-5. nested macros
 6. more JavaScript/OTP mappings
 
 Credits
