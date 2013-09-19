@@ -16,10 +16,9 @@ tabshow() ->
     S = lists:map(fun(X) -> X*X end,[1,2,3,4]),
     M = lists:foldl(fun(X,Acc) -> Acc+X end,0,[1,2,3,4]),
     SS = 12,
-    A = case SS of
+    A = case SS and (SS == 12) of
             12 -> M;
             false -> "11" end,
-%    B = if SS == 12 -> M; true -> "11" end,
     X:on("show", fun(E) -> T = jq(E:at("target")), tabshow(T:attr("href")) end).
 
 doc_ready(E) ->

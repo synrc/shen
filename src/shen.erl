@@ -134,6 +134,9 @@ exp({var,_X,Value},compile) -> io_lib:format("~s",[string:to_lower(atom_to_list(
 exp({'case',X,Condition,Clauses},Type) ->
     io_lib:format("(~s)(~s)",[function("match",X,1,Clauses,match),exp(Condition,Type)]);
 exp({op,_X,'++',Left,Right},Type) -> io_lib:format("~s + ~s",[exp(Left,Type),exp(Right,Type)]);
+exp({op,_X,'=:=',Left,Right},Type) -> io_lib:format("~s == ~s",[exp(Left,Type),exp(Right,Type)]);
+exp({op,_X,'=/=',Left,Right},Type) -> io_lib:format("~s != ~s",[exp(Left,Type),exp(Right,Type)]);
+exp({op,_X,'/=',Left,Right},Type) -> io_lib:format("~s != ~s",[exp(Left,Type),exp(Right,Type)]);
 exp({op,_X,Op,Left,Right},Type) -> io_lib:format("~s ~s ~s",[exp(Left,Type),Op,exp(Right,Type)]);
 exp({call,_X,{atom,_Y,jq},Params},Mode) -> io_lib:format("~s(~s)",["$",par(Params,Mode)]);
 exp({call,_X,{atom,_Y,Name},Params},Mode) ->
