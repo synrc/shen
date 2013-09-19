@@ -113,6 +113,7 @@ Roadmap
 1. multiple clauses for lambdas
 2. list comprehensions
 3. more JavaScript/OTP mappings
+4. if statement
 
 Credits
 -------
