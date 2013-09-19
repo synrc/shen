@@ -10,15 +10,16 @@ parse_transform(Forms, _Options) ->
     File = proplists:get_value(file,Directives,"default.js"),
     Macros = proplists:get_value(jsmacro,Directives,[]),
     put(macros,Macros),
+    put({macroargs,"match"},[]),
     Exp = proplists:get_value(js,Directives,[]),
     collect_vars(Forms,Macros),
     io:format("Macros ~p~nExp: ~p~n", [Macros, Exp]),
     [ io:format("Signatures ~p: ~p~n",[Name,get({macroargs,Name})]) || {Name,_} <- Macros],
+%    error_logger:info_msg("Forms ~p", [Forms]),
     Inlines = intermezzo(Forms,Macros,inline),
     [ io:format("Stack ~p: ~p~n",[Name,get({stack,Name})])          || {Name,_} <- Macros],
     [ io:format("Inline ~p: ~s~n", [Name,get({inline,Name})])       || {Name,_} <- Macros],
     F = compile_macros(Forms,Macros),
-%    error_logger:info_msg("Forms ~p", [Forms]),
     Result = lists:flatten([prelude(),intermezzo(Forms,Exp,compile),coda()]),
     file:write_file(File,list_to_binary(Result)),
     F.
@@ -52,6 +53,9 @@ function(Name,X,Args,Clauses,Type) ->
         compile -> [ io_lib:format("var ~s = pattern({~n", [ Name ]),
                      string:join([ clause(Args,C,Type) || C <- Clauses ],",\n"),
                      io_lib:format("~s~n",["});"]) ];
+        match -> [ io_lib:format("pattern({~n",[]),
+                     string:join([ clause(Args,C,{match,Name}) || C <- Clauses ],",\n"),
+                     io_lib:format("})~n",[]) ];
         inline -> {macro,Name,string:join([ clause(Args,C,{inline,Name}) || C <- Clauses ],",\n")};
         lambda -> string:join([ clause(Args,C,{lambda,Name}) || C <- Clauses ],",\n");
         vars -> [ clause(Args,C,{collectvars,Name}) || C <- Clauses];
@@ -82,6 +86,13 @@ clause(_Argc,{clause,_X,_Argv,_Guard,Expressions},{inline,Name}) ->
     put({inline,Name},R),
     put({stack,Name},lists:reverse(get({stack,Name}))),
     R;
+clause(Argc,{clause,_X,Argv,_Guard,Expressions},{match,Name}) ->
+    Match = string:join([ exp(Arg,compile) || Arg <- Argv ],","),
+%    Args = string:join([ arg(Arg,N) || {Arg,N} <- lists:zip(Argv,lists:seq(1,Argc))],","),
+  [ io_lib:format("\t'~s': function() {~n", [Match]),
+    ["\t\t"++case N == length(Expressions) of true -> "return "; _ -> "" end ++ exp(E,compile)++";\n" 
+      || {E,N} <- lists:zip(Expressions,lists:seq(1,length(Expressions)))],
+    io_lib:format("~s",["\t}"]) ];
 clause(Argc,{clause,_X,Argv,_Guard,Expressions},compile) ->
     Match = string:join([ exp(Arg,compile) || Arg <- Argv ],","),
     Args = string:join([ arg(Arg,N) || {Arg,N} <- lists:zip(Argv,lists:seq(1,Argc))],","),
@@ -99,12 +110,14 @@ check_proplist({cons,_X,Left,Right},L,Mode) ->
 normalize_list({nil,_X},L,_Mode) -> [];
 normalize_list({cons,_X,Left,Right},L,Mode) -> [{exp(Left,Mode)},normalize_list(Right,L,Mode)].
 
-arg({integer,_X,_Value},N) -> io_lib:format("x~s",[integer_to_list(N)]);
+arg({integer,_X,_Value},N) -> io_lib:format("~s",[integer_to_list(N)]);
+arg({string,_X,_Value},N) -> io_lib:format("~s",[N]);
+arg({atom,_X,_Value},N) -> io_lib:format("~p",[N]);
 arg({var,_X,Value},_N) -> io_lib:format("~s",[string:to_lower(atom_to_list(Value))]).
 par(List,Mode) -> io_lib:format("~s",[lists:flatten(string:join([exp(V,Mode)||V<-List],","))]).
 exp({integer,_X,Value},_) -> io_lib:format("~s",[integer_to_list(Value)]);
 exp({string,_X,Value},_) -> io_lib:format("'~s'",[Value]);
-exp({atom,_X,Value},_) -> io_lib:format("~s",[Value]);
+exp({atom,_X,Value},_) -> io_lib:format("~w",[Value]);
 exp({'fun',X,{clauses,Value}},{inline,Name}) -> function(Name,X,0,Value,lambda);
 exp({tuple,_X,List},Mode) -> io_lib:format("{~s}",[lists:flatten(string:join([exp(V,Mode)||V<-List],","))]);
 exp(Cons={cons,_X,Left,Right},Mode) -> 
@@ -118,6 +131,8 @@ exp(V={var,_X,Value},{inline,Name}) ->
          true -> put({stack,Name},[Value|get({stack,Name})]), "~s";
          false -> exp(V,compile) end;
 exp({var,_X,Value},compile) -> io_lib:format("~s",[string:to_lower(atom_to_list(Value))]);
+exp({'case',X,Condition,Clauses},Type) ->
+    io_lib:format("(~s)(~s)",[function("match",X,1,Clauses,match),exp(Condition,Type)]);
 exp({op,_X,'++',Left,Right},Type) -> io_lib:format("~s + ~s",[exp(Left,Type),exp(Right,Type)]);
 exp({op,_X,Op,Left,Right},Type) -> io_lib:format("~s ~s ~s",[exp(Left,Type),Op,exp(Right,Type)]);
 exp({call,_X,{atom,_Y,jq},Params},Mode) -> io_lib:format("~s(~s)",["$",par(Params,Mode)]);
@@ -125,8 +140,9 @@ exp({call,_X,{atom,_Y,Name},Params},Mode) ->
     case {lists:member({Name,length(Params)},get(macros)),Mode} of
          {true,{inline,Outer}} -> 
             {MacroArgs,MacroStack} = {get({macroargs,Name}),get({stack,Name})},
-            io_lib:format(lists:flatten(get({inline,Name})),
-                [ exp(lists:nth(string:str(MacroArgs,[P]),Params),Mode) || P <- MacroStack]);
+            InlineName = get({inline,Name}),
+            case InlineName of undefined -> "nop()"; _ -> io_lib:format(lists:flatten(InlineName),
+               [ exp(lists:nth(string:str(MacroArgs,[P]),Params),Mode) || P <- MacroStack]) end;
          {false,_} -> io_lib:format("~s(~s)",[Name,par(Params,Mode)]) end;
 exp({call,_,{remote,_,VarAtom={atom,_,lists},{atom,_,map}},[Fun,List]},Mode) -> shen_lists:map(Fun,List,Mode);
 exp({call,_,{remote,_,VarAtom={atom,_,lists},{atom,_,foldl}},[Fun,Acc,List]},Mode) -> shen_lists:foldl(Fun,Acc,List,Mode);

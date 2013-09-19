@@ -3,12 +3,6 @@
 -compile(export_all).
 -jsmacro([macro/3,tabshow/0,doc_ready/1,on_show/0,append_header/0]).
 
-tabshow() ->
-    X = jq("a[data-toggle=tab]"),
-    S = lists:map(fun(X) -> X*X end,[1,2,3,4]),
-    M = lists:foldl(fun(X,Acc) -> Acc+X end,0,[1,2,3,4]),
-    X:on("show", fun(E) -> T = jq(E:at("target")), tabshow(T:attr("href")) end).
-
 macro(A,B,C) ->
     ws:send('Bert':encodebuf(
         [{source,'Bert':binary(A)},
@@ -16,11 +10,22 @@ macro(A,B,C) ->
          {pickle,'Bert':binary(B)},
          {linked,C}])).
 
+
+tabshow() ->
+    X = jq("a[data-toggle=tab]"),
+    S = lists:map(fun(X) -> X*X end,[1,2,3,4]),
+    M = lists:foldl(fun(X,Acc) -> Acc+X end,0,[1,2,3,4]),
+    SS = 12,
+    A = case SS of
+            12 -> M;
+            false -> "11" end,
+%    B = if SS == 12 -> M; true -> "11" end,
+    X:on("show", fun(E) -> T = jq(E:at("target")), tabshow(T:attr("href")) end).
+
 doc_ready(E) ->
     macro("1","2",E),
     D = jq(document),
     D:ready(fun() -> T = jq("a[href=\"#" ++ E ++ "\"]"), T:tab("show") end).
-
 
 on_show() ->
      X = jq("a[data-toggle=\"tab\"]"),
