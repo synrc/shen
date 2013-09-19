@@ -17,7 +17,7 @@ tabshow() ->
     M = lists:foldl(fun(X,Acc) -> Acc+X end,0,[1,2,3,4]),
     SS = 12,
     A = case SS and (SS == 12) of
-            12 -> M;
+            12 -> [ begin C end || {A,C,B} <- [1,2,3]];
             false -> "11" end,
     X:on("show", fun(E) -> T = jq(E:at("target")), tabshow(T:attr("href")) end).
 

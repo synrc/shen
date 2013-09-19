@@ -119,7 +119,7 @@ exp({integer,_X,Value},_) -> io_lib:format("~s",[integer_to_list(Value)]);
 exp({string,_X,Value},_) -> io_lib:format("'~s'",[Value]);
 exp({atom,_X,Value},_) -> io_lib:format("~w",[Value]);
 exp({'fun',X,{clauses,Value}},{inline,Name}) -> function(Name,X,0,Value,lambda);
-exp({tuple,_X,List},Mode) -> io_lib:format("{~s}",[lists:flatten(string:join([exp(V,Mode)||V<-List],","))]);
+exp({tuple,_X,List},Mode) -> io_lib:format("[~s]",[lists:flatten(string:join([exp(V,Mode)||V<-List],","))]);
 exp(Cons={cons,_X,Left,Right},Mode) -> 
     case check_proplist(Cons,[],Mode) of
         {true,L} -> io_lib:format("{~s}",[string:join([[K,":",V]||{K,V}<-L],",")]);
@@ -134,6 +134,7 @@ exp({var,_X,Value},compile) -> io_lib:format("~s",[string:to_lower(atom_to_list(
 exp({'case',X,Condition,Clauses},Type) ->
     io_lib:format("(~s)(~s)",[function("match",X,1,Clauses,match),exp(Condition,Type)]);
 exp({op,_X,'++',Left,Right},Type) -> io_lib:format("~s + ~s",[exp(Left,Type),exp(Right,Type)]);
+exp({lc,_X,Var,GenerateList},Type) -> "lc";
 exp({op,_X,'=:=',Left,Right},Type) -> io_lib:format("~s == ~s",[exp(Left,Type),exp(Right,Type)]);
 exp({op,_X,'=/=',Left,Right},Type) -> io_lib:format("~s != ~s",[exp(Left,Type),exp(Right,Type)]);
 exp({op,_X,'/=',Left,Right},Type) -> io_lib:format("~s != ~s",[exp(Left,Type),exp(Right,Type)]);
