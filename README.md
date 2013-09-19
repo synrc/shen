@@ -110,8 +110,8 @@ Lets try it:
 Roadmap
 -------
 
-1. booleans
-2. multiple clauses
+1. boolean ops
+2. multiple clauses for lambdas
 3. list comprehensions
 4. more JavaScript/OTP mappings
 
