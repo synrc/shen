@@ -110,11 +110,10 @@ Lets try it:
 Roadmap
 -------
 
-1. if/case matches
-2. booleans
-3. multiple clauses
-4. list comprehensions
-6. more JavaScript/OTP mappings
+1. booleans
+2. multiple clauses
+3. list comprehensions
+4. more JavaScript/OTP mappings
 
 Credits
 -------
