@@ -1,13 +1,15 @@
 -module(shen).
 -author('Maxim Sokhatsky').
+-author('Andrii Zadorozhnii').
 -copyright('Synrc Research Center').
 -export([parse_transform/2]).
 -compile(export_all).
 
 parse_transform(Forms, _Options) ->
     Directives = directives(Forms),
-    File = proplists:get_value(file,Directives),
-    Macros = proplists:get_value(jsmacro,Directives),
+    File = proplists:get_value(file,Directives,"default.js"),
+    Macros = proplists:get_value(jsmacro,Directives,[]),
+    put(macros,Macros),
     Exp = proplists:get_value(js,Directives,[]),
     collect_vars(Forms,Macros),
     io:format("Macros ~p~nExp: ~p~n", [Macros, Exp]),
@@ -116,11 +118,16 @@ exp(V={var,_X,Value},{inline,Name}) ->
          true -> put({stack,Name},[Value|get({stack,Name})]), "~s";
          false -> exp(V,compile) end;
 exp({var,_X,Value},compile) -> io_lib:format("~s",[string:to_lower(atom_to_list(Value))]);
-exp({op,_X,'-',Left,Right},Type) -> io_lib:format("~s - ~s",[exp(Left,Type),exp(Right,Type)]);
 exp({op,_X,'++',Left,Right},Type) -> io_lib:format("~s + ~s",[exp(Left,Type),exp(Right,Type)]);
-exp({op,_X,'*',Left,Right},Type) -> io_lib:format("~s * ~s",[exp(Left,Type),exp(Right,Type)]);
+exp({op,_X,Op,Left,Right},Type) -> io_lib:format("~s ~s ~s",[exp(Left,Type),Op,exp(Right,Type)]);
 exp({call,_X,{atom,_Y,jq},Params},Mode) -> io_lib:format("~s(~s)",["$",par(Params,Mode)]);
-exp({call,_X,{atom,_Y,Name},Params},Mode) -> io_lib:format("~s(~s)",[Name,par(Params,Mode)]);
+exp({call,_X,{atom,_Y,Name},Params},Mode) ->
+    case {lists:member({Name,length(Params)},get(macros)),Mode} of
+         {true,{inline,Outer}} -> 
+            {MacroArgs,MacroStack} = {get({macroargs,Name}),get({stack,Name})},
+            io_lib:format(lists:flatten(get({inline,Name})),
+                [ exp(lists:nth(string:str(MacroArgs,[P]),Params),Mode) || P <- MacroStack]);
+         {false,_} -> io_lib:format("~s(~s)",[Name,par(Params,Mode)]) end;
 exp({call,_,{remote,_,VarAtom={atom,_,lists},{atom,_,map}},[Fun,List]},Mode) -> shen_lists:map(Fun,List,Mode);
 exp({call,_,{remote,_,VarAtom={atom,_,lists},{atom,_,foldl}},[Fun,Acc,List]},Mode) -> shen_lists:foldl(Fun,Acc,List,Mode);
 exp({call,_,{remote,_,VarAtom={atom,_,lists},{atom,_,foldr}},[Fun,Acc,List]},Mode) -> shen_lists:foldr(Fun,Acc,List,Mode);
