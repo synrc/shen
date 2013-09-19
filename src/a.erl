@@ -1,7 +1,7 @@
 -module(a).
 -compile({parse_transform, shen}).
 -compile(export_all).
--jsmacro([macro/3,tabshow/0,doc_ready/1]).
+-jsmacro([macro/3,tabshow/0,doc_ready/1,on_show/0,append_header/0]).
 
 tabshow() ->
     X = jq("a[data-toggle=tab]"),
@@ -20,6 +20,27 @@ doc_ready(E) ->
     macro("1","2",E),
     D = jq(document),
     D:ready(fun() -> T = jq("a[href=\"#" ++ E ++ "\"]"), T:tab("show") end).
+
+
+on_show() ->
+     X = jq("a[data-toggle=\"tab\"]"),
+     X:on("shown", fun(E) ->
+         T = jq(E:at("target")),T:addClass("text-warning"),
+         Sb = T:siblings(),Sb:removeClass("text-warning"),
+         tabshow(T:attr("href")) end).
+
+append_header() ->
+     on_show(),
+     'appendHeader' = fun(T) ->
+         console:log(jq(T)),
+         B = jq("body"),
+         H = jq("#header"),
+         console:log(H),
+         D = H:detach(),
+         Tab = jq(T),
+         D:prependTo(Tab),
+         setTimeout(fun()-> console:log(Tab) end, 1)
+     end.
 
 main() ->
     Script1 = tabshow(),
