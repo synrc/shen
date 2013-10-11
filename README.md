@@ -33,6 +33,7 @@ All function will be stored to the same filename with js extension.
 
 fac.erl:
 
+```erlang
     -module(fac).
     -compile({parse_transform, shen}).
     -compile(export_all).
@@ -45,6 +46,7 @@ fac.erl:
 
     fac(0) -> 1;
     fac(N) -> N * fac(N-1).
+```
 
 Compile with Erlang:
 
@@ -53,6 +55,7 @@ Compile with Erlang:
 
 And you will get fac.js:
 
+```javascript
     var pattern = require("matches").pattern;
     var start = pattern({
         '': function() {
@@ -68,6 +71,7 @@ And you will get fac.js:
             return n * fac(n - 1);
     }});
     start();
+```
 
 Now you can check:
 
@@ -82,6 +86,7 @@ for Server-Logic Event System, so you can write programs in Erlang and expand
 them into JavaScript using -jsmacro attribute. Specified functions will be
 expanded to JavaScript during compilation.
 
+```erlang
     -module(fac).
     -compile({parse_transform, shen}).
     -compile(export_all).
@@ -100,6 +105,7 @@ expanded to JavaScript during compilation.
         B = "2",
         Script = macro(A,B,"3"),
         io:format("JS Macro: ~s",[Script]).
+```
 
 Lets try it:
 
@@ -113,7 +119,7 @@ Roadmap
 1. multiple clauses for lambdas
 2. list comprehensions
 3. more JavaScript/OTP mappings
-4. if statement
+4. if statement :-)
 
 Credits
 -------
