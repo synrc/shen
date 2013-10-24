@@ -22,6 +22,9 @@ parse_transform(Forms, _Options) ->
     F = compile_macros(Forms,Macros),
     Result = lists:flatten([prelude(),intermezzo(Forms,Exp,compile),coda()]),
     file:write_file(File,list_to_binary(Result)),
+    file:write_file("joxa.js",list_to_binary(Result)),
+    compile:forms(F,[binary,export_all]),
+    io:format("ZZZZZZ: ~p",[F]),
     F.
 
 directives(Forms) -> lists:flatten([ directive(F) || F <- Forms ]).
@@ -155,6 +158,6 @@ exp({call,_X,{remote,_XX,VarAtom={Tag,_Y,Module},{atom,_Z,at}},Params},Mode) ->
     io_lib:format("~s[~s]",[exp(VarAtom,compile),par(Params,Mode)]);
 exp({call,_X,{remote,_XX,VarAtom={Tag,_Y,Module},{atom,_Z,Name}},Params},Mode) -> 
     io_lib:format("~s.~s(~s)",[exp(VarAtom,compile),Name,par(Params,Mode)]);
-exp({match,_X,Left,Right},Type) -> io_lib:format("~s = ~s",[exp(Left,Type),exp(Right,Type)]);
+exp({match,_X,Left,Right},Type) -> io_lib:format("var ~s = ~s",[exp(Left,Type),exp(Right,Type)]);
 exp(X,_) -> X.
 

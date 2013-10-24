@@ -1,7 +1,18 @@
 -module(a).
 -compile({parse_transform, shen}).
+-export([main/0]).
 -compile(export_all).
 -jsmacro([macro/3,tabshow/0,doc_ready/1,on_show/0,append_header/0]).
+
+-type mytype() :: integer().
+
+-export_type([mytype/0]).
+
+fibo(N) ->
+    case N of
+        0 -> 0;
+        1 -> 1;
+        _ when erlang:is_integer(N) -> fibo(N-1) + fibo(N-2) end.
 
 macro(A,B,C) ->
     ws:send('Bert':encodebuf(
