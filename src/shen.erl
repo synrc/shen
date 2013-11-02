@@ -13,18 +13,18 @@ parse_transform(Forms, _Options) ->
     put({macroargs,"match"},[]),
     Exp = proplists:get_value(js,Directives,[]),
     collect_vars(Forms,Macros),
-    io:format("Macros ~p~nExp: ~p~n", [Macros, Exp]),
-    [ io:format("Signatures ~p: ~p~n",[Name,get({macroargs,Name})]) || {Name,_} <- Macros],
+%    io:format("Macros ~p~nExp: ~p~n", [Macros, Exp]),
+%    [ io:format("Signatures ~p: ~p~n",[Name,get({macroargs,Name})]) || {Name,_} <- Macros],
 %    error_logger:info_msg("Forms ~p", [Forms]),
     Inlines = intermezzo(Forms,Macros,inline),
-    [ io:format("Stack ~p: ~p~n",[Name,get({stack,Name})])          || {Name,_} <- Macros],
-    [ io:format("Inline ~p: ~s~n", [Name,get({inline,Name})])       || {Name,_} <- Macros],
+%    [ io:format("Stack ~p: ~p~n",[Name,get({stack,Name})])          || {Name,_} <- Macros],
+%    [ io:format("Inline ~p: ~s~n", [Name,get({inline,Name})])       || {Name,_} <- Macros],
     F = compile_macros(Forms,Macros),
     Result = lists:flatten([prelude(),intermezzo(Forms,Exp,compile),coda()]),
     file:write_file(File,list_to_binary(Result)),
     file:write_file("joxa.js",list_to_binary(Result)),
     compile:forms(F,[binary,export_all]),
-    io:format("ZZZZZZ: ~p",[F]),
+%    io:format("ZZZZZZ: ~p",[F]),
     F.
 
 directives(Forms) -> lists:flatten([ directive(F) || F <- Forms ]).
