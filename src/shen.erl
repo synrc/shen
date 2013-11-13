@@ -21,8 +21,8 @@ parse_transform(Forms, _Options) ->
 %    [ io:format("Inline ~p: ~s~n", [Name,get({inline,Name})])       || {Name,_} <- Macros],
     F = compile_macros(Forms,Macros),
     Result = lists:flatten([prelude(),intermezzo(Forms,Exp,compile),coda()]),
-    file:write_file(File,list_to_binary(Result)),
-    file:write_file("joxa.js",list_to_binary(Result)),
+%    file:write_file(File,list_to_binary(Result)),
+%    file:write_file("joxa.js",list_to_binary(Result)),
     compile:forms(F,[binary,export_all]),
 %    io:format("ZZZZZZ: ~p",[F]),
     F.
