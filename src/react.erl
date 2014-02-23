@@ -14,4 +14,12 @@ start() ->
         render = fun(This) -> value(email,This) end
             },
 
-    User.
+    CommentList = #react{
+        render = fun(This) -> 
+            Users = lists:map(fun(Item) ->
+                User#react{props=Item} end, value(data,This)),
+            Users
+        end
+    },
+
+    CommentList.

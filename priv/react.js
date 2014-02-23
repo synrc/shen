@@ -8,8 +8,15 @@ var value = pattern({
 var start = pattern({
 	'': function() {
 		var user = React.createClass({render: function() {
-		return value(email,this);
+		return value('email',this);
 	}});;
-		return user;
+		var commentlist = React.createClass({render: function() {
+		var users = value('data',this).map(function(item) {
+		return user({props: item});;
+	});
+;
+		return users;
+	}});;
+		return commentlist;
 	}});
 start();

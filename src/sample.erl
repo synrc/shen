@@ -6,8 +6,6 @@
 -js([start/0,start2/2,fac/1]).
 -jsmacro([macro/3]).
 
--record(react,{props=[],state,name,init,render,willMount=fun(X)->X end}).
-
 macro(A,B,C) ->
     X = document,
     jq(X),
@@ -19,7 +17,6 @@ macro(A,B,C) ->
          {linked,C}])).
 
 start2(X,Y) -> 
-    O = #react{name="12"},
     F = fun(A) -> A:log("100") end,
     F(console),
     case X of

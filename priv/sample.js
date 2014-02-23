@@ -2,7 +2,6 @@
 var pattern = window.matches.pattern;
 var start2 = pattern({
 	'x,y': function(x,y) {
-		var o = React.createClass({name: '12'});;
 		var f = function(a) {
 		return a.log('100');
 	};

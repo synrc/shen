@@ -77,7 +77,6 @@ cons(X,[]) -> {nil,X};
 cons(X,[H|T]) -> {cons,X,{var,X,H},cons(X,T)}.
 
 clause(_Argc,_C={clause,_X,XArgv,_Guard,Expressions},{lambda,Name}) ->
-    io:format("Argv: ~p~n",[XArgv]),
     Argv = [ {T,L,Na} || {T,L,Na} <- XArgv, Na /= 'This'],
     Args = string:join([ arg(Arg,N) || {Arg,N} <- lists:zip(Argv,lists:seq(1,length(Argv)))],","),
   [ io_lib:format("function(~s) {~n", [Args]),
@@ -132,6 +131,7 @@ par(List,Mode) -> io_lib:format("~s",[lists:flatten(string:join([exp(V,Mode)||V<
 
 exp({integer,_X,Value},_) -> io_lib:format("~s",[integer_to_list(Value)]);
 exp({string,_X,Value},_) -> io_lib:format("'~s'",[Value]);
+exp({atom,_X,Value},{inline,_}) -> io_lib:format("'~w'",[Value]);
 exp({atom,_X,Value},_) -> io_lib:format("~w",[Value]);
 exp({'fun',X,{clauses,Value}},{inline,Name}) -> function(Name,X,0,Value,lambda);
 exp({'fun',X,{clauses,Value}},_) -> function("lambda",X,0,Value,lambda);
@@ -144,7 +144,6 @@ exp(Cons={cons,_X,_Left,_Right},Mode) ->
 exp({nil,_X},_) -> "[]";
 exp(V={var,_X,Value},{inline,Name}) ->
     Macroargs = get({macroargs,Name}),
-    io:format("Var Inline: ~p, ~p~n",[Name,Macroargs]),
     case lists:member(Value,Macroargs) of
          true -> put({stack,Name},[Value|get({stack,Name})]), "~s";
          false -> exp(V,compile) end;
@@ -176,7 +175,6 @@ exp({call,_X,{remote,_XX,VarAtom={_Tag,_Y,_Module},{atom,_Z,Name}},Params},Mode)
 exp({remote,_XX,VarAtom={var,_Y,_Module},{_,_Z,Name}},Mode) -> 
     X = io_lib:format("~s.~s",[string:to_lower(lists:concat([_Module])),
                                string:to_lower(lists:concat([Name])) ]),
-    io:format("ok: ~s~n",[X]),
     X;
 exp({call,_X,{var,_XX,Name},Params},Mode) -> 
     io_lib:format("~s(~s)",[string:to_lower(lists:concat([Name])),par(Params,Mode)]);
@@ -185,7 +183,9 @@ exp({record_field,_X,{_,_,Name},Value},Mode) ->
     io_lib:format("~s: ~s",[lists:concat([Name]),exp(Value,Mode)]);
 exp({record,_X,react,Fields},Mode) ->
     L = [ io_lib:format("~s",[exp(F,Mode)]) || F <- Fields],
-    io:format("Fields: \"~p\"~n",[L]),
     io_lib:format("React.createClass({~s});",[L]);
+exp({record,_X,{var,_,Var},react,Fields},Mode) ->
+    L = [ io_lib:format("~s",[exp(F,Mode)]) || F <- Fields],
+    io_lib:format("~s({~s});",[string:to_lower(lists:concat([Var])),L]);
 exp(X,_) -> X.
 
