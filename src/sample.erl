@@ -2,7 +2,8 @@
 -compile({parse_transform, shen}).
 -compile(export_all).
 
--js([start/0,fac/1]).
+-output("priv").
+-js([start/0,start2/2,fac/1]).
 -jsmacro([macro/3]).
 
 macro(A,B,C) ->
@@ -15,7 +16,13 @@ macro(A,B,C) ->
          {pickle,'Bert':binary(B)},
          {linked,C}])).
 
+start2(X,Y) -> 
+    case X of
+        1 -> console:log([X,Y]);
+        _ -> console:log("ok") end.
+
 start() ->
+    start2(1,3),
     J = 5,
     N = fac(J),
     console:log("factorial ~p", [J, N]).
@@ -29,10 +36,3 @@ main() ->
     Script = macro(A,B,"3"),
     io:format("JS Macro: ~s",[Script]).
 
-% $('#~s').parent('.file_upload').after(\"<img src='~s'>\").remove();
-
-%html_box(Box) ->
-%    chain([{jq,[Box]},
-%           {parent,['.fileupload']},
-%           {after,["<img src='",Box,"'"]},
-%           {remove,[]}]).
