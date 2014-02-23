@@ -2,6 +2,10 @@
 var pattern = window.matches.pattern;
 var start2 = pattern({
 	'x,y': function(x,y) {
+		var f = function(a) {
+		return a.log('100');
+	};
+		f(console);
 		return (pattern({
 	'1': function() {
 		return console.log([x,y]);
@@ -13,7 +17,7 @@ var start2 = pattern({
 	}});
 var start = pattern({
 	'': function() {
-		start2(2,3);
+		start2(1,3);
 		var j = 5;
 		var n = fac(j);
 		return console.log('factorial ~p',[j,n]);

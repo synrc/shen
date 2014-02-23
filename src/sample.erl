@@ -17,6 +17,8 @@ macro(A,B,C) ->
          {linked,C}])).
 
 start2(X,Y) -> 
+    F = fun(A) -> A:log("100") end,
+    F(console),
     case X of
         1 -> console:log([X,Y]);
         _ -> console:log("ok") end.

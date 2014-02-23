@@ -131,6 +131,7 @@ exp({integer,_X,Value},_) -> io_lib:format("~s",[integer_to_list(Value)]);
 exp({string,_X,Value},_) -> io_lib:format("'~s'",[Value]);
 exp({atom,_X,Value},_) -> io_lib:format("~w",[Value]);
 exp({'fun',X,{clauses,Value}},{inline,Name}) -> function(Name,X,0,Value,lambda);
+exp({'fun',X,{clauses,Value}},_) -> function("lambda",X,0,Value,lambda);
 exp({tuple,_X,List},Mode) -> io_lib:format("[~s]",[lists:flatten(string:join([exp(V,Mode)||V<-List],","))]);
 exp(Cons={cons,_X,_Left,_Right},Mode) -> 
     case check_proplist(Cons,[],Mode) of
@@ -167,6 +168,8 @@ exp({call,_X,{remote,_XX,VarAtom={_Tag,_Y,_Module},{atom,_Z,at}},Params},Mode) -
     io_lib:format("~s[~s]",[exp(VarAtom,compile),par(Params,Mode)]);
 exp({call,_X,{remote,_XX,VarAtom={_Tag,_Y,_Module},{atom,_Z,Name}},Params},Mode) -> 
     io_lib:format("~s.~s(~s)",[exp(VarAtom,compile),Name,par(Params,Mode)]);
+exp({call,_X,{var,_XX,Name},Params},Mode) -> 
+    io_lib:format("~s(~s)",[string:to_lower(lists:concat([Name])),par(Params,Mode)]);
 exp({match,_X,Left,Right},Type) -> io_lib:format("var ~s = ~s",[exp(Left,Type),exp(Right,Type)]);
 exp(X,_) -> X.
 
