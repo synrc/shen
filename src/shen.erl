@@ -183,7 +183,7 @@ exp({record_field,_X,{_,_,Name},Value},Mode) ->
     io_lib:format("~s: ~s",[lists:concat([Name]),exp(Value,Mode)]);
 exp({record,_X,react,Fields},Mode) ->
     L = [ io_lib:format("~s",[exp(F,Mode)]) || F <- Fields],
-    io_lib:format("React.createClass({~s});",[L]);
+    io_lib:format("React.createClass({~s});",[string:join(L,",\n")]);
 exp({record,_X,{var,_,Var},react,Fields},Mode) ->
     L = [ io_lib:format("~s",[exp(F,Mode)]) || F <- Fields],
     io_lib:format("~s({~s});",[string:to_lower(lists:concat([Var])),L]);

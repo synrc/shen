@@ -15,6 +15,7 @@ start() ->
             },
 
     CommentList = #react{
+        props = [{data,[]}],
         render = fun(This) -> 
             Users = lists:map(fun(Item) ->
                 User#react{props=Item} end, value(data,This)),

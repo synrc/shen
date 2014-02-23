@@ -10,7 +10,8 @@ var start = pattern({
 		var user = React.createClass({render: function() {
 		return value('email',this);
 	}});;
-		var commentlist = React.createClass({render: function() {
+		var commentlist = React.createClass({props: {data:[]},
+render: function() {
 		var users = value('data',this).map(function(item) {
 		return user({props: item});;
 	});
