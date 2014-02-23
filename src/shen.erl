@@ -24,7 +24,6 @@ parse_transform(Forms, _Options) ->
     Result = lists:flatten([prelude(),intermezzo(Forms,Exp,compile),coda()]),
     file:write_file(filename:join([Path,File]),list_to_binary(Result)),
     compile:forms(F,[binary,export_all]),
-%    io:format("ZZZZZZ: ~p",[F]),
     F.
 
 directives(Forms) -> lists:flatten([ directive(F) || F <- Forms ]).
