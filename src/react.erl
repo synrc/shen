@@ -6,12 +6,13 @@
 -js([start/0,value/2]).
 
 -record(react,{props=[],state,name,init,render,willMount=fun(X)->X end}).
+-record(h1,{body}).
 
 value(Key,O) -> Props = O:at("props"), Props:at(Key).
 
-start() -> 
+start() ->
     User = #react{
-        render = fun(This) -> value(email,This) end
+        render = fun(This) -> #h1{body=value(email,This)} end
             },
 
     CommentList = #react{

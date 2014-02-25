@@ -122,7 +122,7 @@ check_proplist({cons,_X,Left,Right},L,Mode) ->
 normalize_list({nil,_X},_L,_Mode) -> [];
 normalize_list({cons,_X,Left,Right},L,Mode) -> [{exp(Left,Mode)},normalize_list(Right,L,Mode)].
 
-arg({integer,_X,_Value},N) -> io_lib:format("_~s",[integer_to_list(_Value)]);
+arg({integer,_X,_Value},_N) -> io_lib:format("_~s",[integer_to_list(_Value)]);
 arg({string,_X,_Value},N) -> io_lib:format("~s",[N]);
 arg({atom,_X,_Value},N) -> io_lib:format("~p",[N]);
 arg({var,_X,Value},_N) -> io_lib:format("~s",[string:to_lower(atom_to_list(Value))]).
@@ -172,7 +172,7 @@ exp({call,_X,{remote,_XX,VarAtom={_Tag,_Y,_Module},{atom,_Z,at}},Params},Mode) -
     io_lib:format("~s[~s]",[exp(VarAtom,compile),par(Params,Mode)]);
 exp({call,_X,{remote,_XX,VarAtom={_Tag,_Y,_Module},{atom,_Z,Name}},Params},Mode) -> 
     io_lib:format("~s.~s(~s)",[exp(VarAtom,compile),Name,par(Params,Mode)]);
-exp({remote,_XX,VarAtom={var,_Y,_Module},{_,_Z,Name}},Mode) -> 
+exp({remote,_XX,{var,_Y,_Module},{_,_Z,Name}},_Mode) -> 
     X = io_lib:format("~s.~s",[string:to_lower(lists:concat([_Module])),
                                string:to_lower(lists:concat([Name])) ]),
     X;
@@ -184,6 +184,13 @@ exp({record_field,_X,{_,_,Name},Value},Mode) ->
 exp({record,_X,react,Fields},Mode) ->
     L = [ io_lib:format("~s",[exp(F,Mode)]) || F <- Fields],
     io_lib:format("React.createClass({~s});",[string:join(L,",\n")]);
+exp({record,_X,Tag,Fields},Mode) ->
+    case lists:member(Tag,[h1,'div',panel]) of
+      true ->
+        L = lists:flatten([ io_lib:format("~s",[exp(Value,Mode)]) 
+              || F={record_field,_,{_,_,Name},Value} <- Fields, Name == body]),
+        io_lib:format("React.DOM.~s(null,~s);",[Tag,L]);
+      false -> skip end;
 exp({record,_X,{var,_,Var},react,Fields},Mode) ->
     L = [ io_lib:format("~s",[exp(F,Mode)]) || F <- Fields],
     io_lib:format("~s({~s});",[string:to_lower(lists:concat([Var])),L]);

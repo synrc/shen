@@ -8,7 +8,7 @@ var value = pattern({
 var start = pattern({
 	'': function() {
 		var user = React.createClass({render: function() {
-		return value('email',this);
+		return React.DOM.h1(null,value('email',this));;
 	}});;
 		var commentlist = React.createClass({props: {data:[]},
 render: function() {
