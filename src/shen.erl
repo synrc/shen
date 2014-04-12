@@ -63,7 +63,7 @@ compile(_Form,_) -> ":-)".
 function(Name,X,Args,Clauses,Type) ->
     case Type of
         compile -> [ io_lib:format("var ~s = pattern({~n", [ Name ]),
-                     string:join([ clause(Args,C,Type) || C <- Clauses ],",\n"),
+                     string:join([ clause(Args,C,Type) || C <- Clauses ],","),
                      io_lib:format("~s~n",["});"]) ];
         match -> [ io_lib:format("pattern({~n",[]),
                      string:join([ clause(Args,C,{match,Name}) || C <- Clauses ],",\n"),
@@ -124,12 +124,13 @@ normalize_list({cons,_X,Left,Right},L,Mode) -> [{exp(Left,Mode)},normalize_list(
 
 arg({integer,_X,_Value},_N) -> io_lib:format("_~s",[integer_to_list(_Value)]);
 arg({string,_X,_Value},N) -> io_lib:format("~s",[N]);
-arg({atom,_X,_Value},N) -> io_lib:format("~p",[N]);
+arg({atom,_X,_Value},N) -> io_lib:format("'~s'",[N]);
 arg({var,_X,Value},_N) -> io_lib:format("~s",[string:to_lower(atom_to_list(Value))]).
 
 par(List,Mode) -> io_lib:format("~s",[lists:flatten(string:join([exp(V,Mode)||V<-List],","))]).
 
 exp({integer,_X,Value},_) -> io_lib:format("~s",[integer_to_list(Value)]);
+exp({binary,_X,Value},_) -> io_lib:format("~s",[binary_to_list(Value)]);
 exp({string,_X,Value},_) -> io_lib:format("'~s'",[Value]);
 exp({atom,_X,Value},{inline,_}) -> io_lib:format("'~w'",[Value]);
 exp({atom,_X,Value},_) -> io_lib:format("~w",[Value]);

@@ -25,8 +25,7 @@ var start = pattern({
 var fac = pattern({
 	'0': function(_0) {
 		return 1;
-	},
-	'n': function(n) {
+	},	'n': function(n) {
 		return n * fac(n - 1);
 	}});
 start();
