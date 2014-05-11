@@ -4,11 +4,11 @@
   <head>
     <meta charset='utf-8' />
     <meta http-equiv="X-UA-Compatible" content="chrome=1" />
-    <meta name="description" content="Shen : Erlang JavaScript Parse Transform" />
+    <meta name="description" content="SHEN : Erlang JavaScript Parse Transform" />
 
     <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
 
-    <title>Shen</title>
+    <title>SHEN</title>
   </head>
 
   <body>
@@ -18,7 +18,7 @@
         <header class="inner">
           <a id="forkme_banner" href="https://github.com/5HT/shen">View on GitHub</a>
 
-          <h1 id="project_title">Shen</h1>
+          <h1 id="project_title">SHEN</h1>
           <h2 id="project_tagline">Erlang JavaScript Parse Transform</h2>
 
             <section id="downloads">
@@ -66,19 +66,19 @@ All function will be stored to the same filename with js extension.</p>
 
 <p>fac.erl:</p>
 
-<pre><code>-module(fac).
--compile({parse_transform, shen}).
--compile(export_all).
+<div class="highlight highlight-erlang"><pre>    <span class="o">-</span><span class="n">module</span><span class="p">(</span><span class="n">fac</span><span class="p">).</span>
+    <span class="o">-</span><span class="n">compile</span><span class="p">({</span><span class="n">parse_transform</span><span class="p">,</span> <span class="n">shen</span><span class="p">}).</span>
+    <span class="o">-</span><span class="n">compile</span><span class="p">(</span><span class="n">export_all</span><span class="p">).</span>
 
--js([start/0,fac/1]).
+    <span class="o">-</span><span class="n">js</span><span class="p">([</span><span class="n">start</span><span class="o">/</span><span class="mi">0</span><span class="p">,</span><span class="n">fac</span><span class="o">/</span><span class="mi">1</span><span class="p">]).</span>
 
-start() -&gt;
-    N = fac(5),
-    console:log("factorial ~p", [J, N]).
+    <span class="n">start</span><span class="p">()</span> <span class="o">-&gt;</span>
+        <span class="nv">N</span> <span class="o">=</span> <span class="n">fac</span><span class="p">(</span><span class="mi">5</span><span class="p">),</span>
+        <span class="nn">console</span><span class="p">:</span><span class="nf">log</span><span class="p">(</span><span class="s">"factorial </span><span class="si">~p</span><span class="s">"</span><span class="p">,</span> <span class="p">[</span><span class="nv">J</span><span class="p">,</span> <span class="nv">N</span><span class="p">]).</span>
 
-fac(0) -&gt; 1;
-fac(N) -&gt; N * fac(N-1).
-</code></pre>
+    <span class="n">fac</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="n">fac</span><span class="p">(</span><span class="nv">N</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nv">N</span> <span class="o">*</span> <span class="n">fac</span><span class="p">(</span><span class="nv">N</span><span class="o">-</span><span class="mi">1</span><span class="p">).</span>
+</pre></div>
 
 <p>Compile with Erlang:</p>
 
@@ -88,22 +88,22 @@ $ erlc -pa . fac.erl
 
 <p>And you will get fac.js:</p>
 
-<pre><code>var pattern = require("matches").pattern;
-var start = pattern({
-    '': function() {
-        j = 5;
-        n = fac(j);
-        return console.log('factorial ~p',[j,[n,[]]]);
-}});
-var fac = pattern({
-    '0': function(x1) {
-        return 1;
-    },
-    'n': function(n) {
-        return n * fac(n - 1);
-}});
-start();
-</code></pre>
+<div class="highlight highlight-javascript"><pre>    <span class="kd">var</span> <span class="nx">pattern</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">"matches"</span><span class="p">).</span><span class="nx">pattern</span><span class="p">;</span>
+    <span class="kd">var</span> <span class="nx">start</span> <span class="o">=</span> <span class="nx">pattern</span><span class="p">({</span>
+        <span class="s1">''</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+            <span class="nx">j</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span>
+            <span class="nx">n</span> <span class="o">=</span> <span class="nx">fac</span><span class="p">(</span><span class="nx">j</span><span class="p">);</span>
+            <span class="k">return</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'factorial ~p'</span><span class="p">,[</span><span class="nx">j</span><span class="p">,[</span><span class="nx">n</span><span class="p">,[]]]);</span>
+    <span class="p">}});</span>
+    <span class="kd">var</span> <span class="nx">fac</span> <span class="o">=</span> <span class="nx">pattern</span><span class="p">({</span>
+        <span class="s1">'0'</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">x1</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
+        <span class="p">},</span>
+        <span class="s1">'n'</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">n</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="nx">n</span> <span class="o">*</span> <span class="nx">fac</span><span class="p">(</span><span class="nx">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">);</span>
+    <span class="p">}});</span>
+    <span class="nx">start</span><span class="p">();</span>
+</pre></div>
 
 <p>Now you can check:</p>
 
@@ -119,25 +119,25 @@ for Server-Logic Event System, so you can write programs in Erlang and expand
 them into JavaScript using -jsmacro attribute. Specified functions will be
 expanded to JavaScript during compilation.</p>
 
-<pre><code>-module(fac).
--compile({parse_transform, shen}).
--compile(export_all).
+<div class="highlight highlight-erlang"><pre>    <span class="o">-</span><span class="n">module</span><span class="p">(</span><span class="n">fac</span><span class="p">).</span>
+    <span class="o">-</span><span class="n">compile</span><span class="p">({</span><span class="n">parse_transform</span><span class="p">,</span> <span class="n">shen</span><span class="p">}).</span>
+    <span class="o">-</span><span class="n">compile</span><span class="p">(</span><span class="n">export_all</span><span class="p">).</span>
 
--jsmacro([macro/3]).
+    <span class="o">-</span><span class="n">jsmacro</span><span class="p">([</span><span class="n">macro</span><span class="o">/</span><span class="mi">3</span><span class="p">]).</span>
 
-macro(A,B,C) -&gt;
-    ws:send('Bert':encodebuf(
-        [{source,'Bert':binary(A)},
-         {x,C},
-         {pickle,'Bert':binary(B)},
-         {linked,C}])).
+    <span class="n">macro</span><span class="p">(</span><span class="nv">A</span><span class="p">,</span><span class="nv">B</span><span class="p">,</span><span class="nv">C</span><span class="p">)</span> <span class="o">-&gt;</span>
+        <span class="nn">ws</span><span class="p">:</span><span class="nb">send</span><span class="p">(</span><span class="nn">'Bert'</span><span class="p">:</span><span class="nf">encodebuf</span><span class="p">(</span>
+            <span class="p">[{</span><span class="n">source</span><span class="p">,</span><span class="nn">'Bert'</span><span class="p">:</span><span class="nf">binary</span><span class="p">(</span><span class="nv">A</span><span class="p">)},</span>
+             <span class="p">{</span><span class="n">x</span><span class="p">,</span><span class="nv">C</span><span class="p">},</span>
+             <span class="p">{</span><span class="n">pickle</span><span class="p">,</span><span class="nn">'Bert'</span><span class="p">:</span><span class="nf">binary</span><span class="p">(</span><span class="nv">B</span><span class="p">)},</span>
+             <span class="p">{</span><span class="n">linked</span><span class="p">,</span><span class="nv">C</span><span class="p">}])).</span>
 
-main() -&gt;
-    A = "1",
-    B = "2",
-    Script = macro(A,B,"3"),
-    io:format("JS Macro: ~s",[Script]).
-</code></pre>
+    <span class="n">main</span><span class="p">()</span> <span class="o">-&gt;</span>
+        <span class="nv">A</span> <span class="o">=</span> <span class="s">"1"</span><span class="p">,</span>
+        <span class="nv">B</span> <span class="o">=</span> <span class="s">"2"</span><span class="p">,</span>
+        <span class="nv">Script</span> <span class="o">=</span> <span class="n">macro</span><span class="p">(</span><span class="nv">A</span><span class="p">,</span><span class="nv">B</span><span class="p">,</span><span class="s">"3"</span><span class="p">),</span>
+        <span class="nn">io</span><span class="p">:</span><span class="nf">format</span><span class="p">(</span><span class="s">"JS Macro: </span><span class="si">~s</span><span class="s">"</span><span class="p">,[</span><span class="nv">Script</span><span class="p">]).</span>
+</pre></div>
 
 <p>Lets try it:</p>
 
@@ -147,6 +147,14 @@ ok
 </code></pre>
 
 <h2>
+<a name="roadmap" class="anchor" href="#roadmap"><span class="octicon octicon-link"></span></a>Roadmap</h2>
+
+<ol>
+<li>multiple clauses for lambdas</li>
+<li>list comprehensions</li>
+<li>more JavaScript/OTP mappings</li>
+<li>if statement :-)</li>
+</ol><h2>
 <a name="credits" class="anchor" href="#credits"><span class="octicon octicon-link"></span></a>Credits</h2>
 
 <pre><code>* Maxim Sokhatsky
@@ -160,7 +168,7 @@ ok
     <!-- FOOTER  -->
     <div id="footer_wrap" class="outer">
       <footer class="inner">
-        <p class="copyright">Shen maintained by <a href="https://github.com/5HT">5HT</a></p>
+        <p class="copyright">SHEN maintained by <a href="https://github.com/5HT">5HT</a></p>
         <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
       </footer>
     </div>
