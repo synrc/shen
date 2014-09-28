@@ -124,7 +124,7 @@ normalize_list({cons,_X,Left,Right},L,Mode) -> [{exp(Left,Mode)},normalize_list(
 
 arg({integer,_X,_Value},_N) -> io_lib:format("_~s",[integer_to_list(_Value)]);
 arg({string,_X,_Value},N) -> io_lib:format("~s",[N]);
-arg({atom,_X,_Value},N) -> io_lib:format("~p",[N]);
+arg({atom,_X,_Value},N) -> io_lib:format("~s",[N]);
 arg({var,_X,Value},_N) -> io_lib:format("~s",[string:to_lower(atom_to_list(Value))]).
 
 par(List,Mode) -> io_lib:format("~s",[lists:flatten(string:join([exp(V,Mode)||V<-List],","))]).
