@@ -4,6 +4,6 @@
   {vsn, "1"},
   {registered, []},
   {applications, [kernel, stdlib]},
-  {mod, { shen_app, []}},
+  {mod, { shen_app, [shen,react]}},
   {env, []}
  ]}.

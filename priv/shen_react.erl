@@ -1,4 +1,4 @@
--module(react).
+-module(shen_react).
 -compile({parse_transform, shen}).
 -compile(export_all).
 
