@@ -188,8 +188,8 @@ exp({record,_X,react,Fields},Mode) ->
 exp({record,_X,Tag,Fields},Mode) ->
     case lists:member(Tag,[h1,'div',panel]) of
       true ->
-        L = lists:flatten([ io_lib:format("~s",[exp(Value,Mode)]) 
-              || F={record_field,_,{_,_,Name},Value} <- Fields, Name == body]),
+        L = lists:flatten([ io_lib:format("~s",[exp(Value,Mode)])
+              || {record_field,_,{_,_,Name},Value} <- Fields, Name == body]),
         io_lib:format("React.DOM.~s(null,~s);",[Tag,L]);
       false -> skip end;
 exp({record,_X,{var,_,Var},react,Fields},Mode) ->

@@ -1,10 +1,7 @@
-Erlang JavaScript Parse Transform
-=================================
+SHEN: Erlang JavaScript Compiler
+================================
 
-Till now all existed attempts to bring Erlang to the browser is nothing than playing with mind.
-No emulation of terrible Erlang bytecode is needed. In fact Erlang bytecode is relict
-that is even translated by BEAM into more modern internal bytecode. So every project
-that attempt to translate on BEAM byte-code level not only slow but in fact is a useless.
+Simple
 
 Libraries
 ---------
