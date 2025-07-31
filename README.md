@@ -12,7 +12,7 @@ We support following stack by Erlang JavaScript compiler:
 * tailrec.js -- optimize tail calls
 * beacon.js -- FRP event streaming
 
-The only real pratical fast solution is to translate Erlang AST into JavaScript
+The only real practical fast solution is to translate Erlang AST into JavaScript
 using JavaScript helpers like matches.js and tailrec.js.
 
 Usage
